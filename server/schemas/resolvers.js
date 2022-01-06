@@ -1,6 +1,8 @@
 const { AuthenticationError } = require('apollo-server-express');
 const { User, Product, Category, Order } = require('../models');
 const { signToken } = require('../utils/auth');
+//import the Stripe package
+const stripe = require('stripe')('sk_test_4eC39HqLyjWDarjtT1zdp7dc');
 
 const resolvers = {
   Query: {
@@ -50,7 +52,48 @@ const resolvers = {
       }
 
       throw new AuthenticationError('Not logged in');
+    },
+    checkout: async (parent, args, context) => {
+      const order = new Order({ products: args.products });
+      const { products } = await order.populate('products').execPopulate();
+      const line_items = [];
+
+      //this loops over the products from the Order model and pushes a price ID for each one 
+      //into a new line_items array. 
+      for (let i = 0; i < products.length; i++) {
+        // generate product id
+        const product = await stripe.products.create({
+          name: products[i].name,
+          description: products[i].description
+        });
+
+        // generate price id using the product id
+        const price = await stripe.prices.create({
+          product: product.id,
+          unit_amount: products[i].price * 100,
+          currency: 'usd',
+        });
+
+        // add price id to the line items array
+        line_items.push({
+          price: price.id,
+          quantity: 1
+        });
+      }
+      //this will use the line_items array to generate a Stripe checkout session
+      //the session ID is the only data the resolver needs, so we can return it
+      const session = await stripe.checkout.sessions.create({
+        payment_method_types: ['card'],
+        line_items,
+        mode: 'payment',
+        success_url: 'https://example.com/success?session_id={CHECKOUT_SESSION_ID}',
+        cancel_url: 'https://example.com/cancel'
+      });
+      
+      return { session: session.id };
+
     }
+
   },
   Mutation: {
     addUser: async (parent, args) => {
