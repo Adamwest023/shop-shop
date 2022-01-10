@@ -2,7 +2,7 @@ import React, { useEffect } from 'react';
 import { loadStripe } from '@stripe/stripe-js';
 import { useLazyQuery } from '@apollo/client';
 import { idbPromise } from "../../utils/helpers";
-import { Query_CHECKOUT } from '../../utils/queries';
+import { QUERY_CHECKOUT } from '../../utils/queries';
 import CartItem from '../CartItem';
 import Auth from '../../utils/auth';
 import './style.css';
@@ -16,7 +16,7 @@ const stripePromise = loadStripe('pk_test_TYooMQauvdEDq54NiTphI7jx');
 const Cart = () => {
     const dispatch = useDispatch();
     const state = useSelector((state) => state);
-    const [getCheckout, { data }] = useLazyQuery(Query_CHECKOUT);
+    const [getCheckout, { data }] = useLazyQuery(QUERY_CHECKOUT);
     //use this function to check if there's anything in the state's cart property on load, if not we'll retrieve data from IDB cart object store
     //watched for changes to data in the stripe promise
     useEffect(() => {
@@ -62,7 +62,7 @@ const Cart = () => {
         });
 
         getCheckout({
-            variable: { products: productIds }
+            variables: { products: productIds }
         });
     }
     
