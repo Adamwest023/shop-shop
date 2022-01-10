@@ -2,14 +2,19 @@ import React, { useEffect } from 'react';
 import { useQuery } from '@apollo/client';
 import { QUERY_CATEGORIES } from '../../utils/queries';
 import { UPDATE_CATEGORIES, UPDATE_CURRENT_CATEGORY } from '../../utils/actions';
-import {useStoreContext} from "../../utils/GlobalState";
+// import {useStoreContext} from "../../utils/GlobalState";
+//import react redux
+import { useDispatch, useSelector } from 'react-redux';
 //import IDB function
 import { idbPromise} from '../../utils/helpers';
 
 function CategoryMenu() {
   //call useStoreContext Hook to retrieve the current state from the global state object 
   //and the dispatch method to update state 
-  const [state, dispatch] = useStoreContext();
+  //const [state, dispatch] = useStoreContext();
+  //call redux instead of ContextAPI
+  const dispatch = useDispatch();
+  const state = useSelector((state) => state);
   //destructure the categories array from the state 
   const {categories} = state;
   //update the hook to destructure a loading variable

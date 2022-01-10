@@ -1,6 +1,7 @@
 import React, { useEffect} from 'react';
 import { useQuery } from '@apollo/client';
-import { useStoreContext } from '../../utils/GlobalState';
+// import { useStoreContext } from '../../utils/GlobalState';
+import { useDispatch, useSelector } from 'react-redux';
 import { UPDATE_PRODUCTS } from '../../utils/actions';
 
 import ProductItem from '../ProductItem';
@@ -12,8 +13,11 @@ import {idbPromise} from '../../utils/helpers';
 
 function ProductList() {
   //execute the useStoreContest() function to retrieve the global state object
-  //and the dispatch method to update state.
-  const [state, dispatch] = useStoreContext();
+  // //and the dispatch method to update state.
+  // const [state, dispatch] = useStoreContext();
+  //use redux instead of the global state
+  const dispatch = useDispatch();
+  const state = useSelector((state) => state);
   //deconstruct the currentCategory data out of the state object
   const {currentCategory} = state;
   //

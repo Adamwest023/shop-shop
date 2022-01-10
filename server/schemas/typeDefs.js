@@ -52,7 +52,6 @@ const typeDefs = gql`
     login(email: String!, password: String!): Auth
   }
 
-// create a new query for a checkout session
   type Checkout {
     session: ID
   }

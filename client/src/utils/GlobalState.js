@@ -24,7 +24,7 @@ const StoreProvider = ({ value = [], ...props }) => {
     return <Provider value={[state, dispatch]} {...props} />;
 };
 
-//create custom fuction using hook to be used by the components
+//create custom function using hook to be used by the components
 const useStoreContext = () => {
     return useContext(StoreContext);
 };
