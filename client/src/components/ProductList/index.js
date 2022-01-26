@@ -1,61 +1,46 @@
-import React, { useEffect} from 'react';
-import { useQuery } from '@apollo/client';
-// import { useStoreContext } from '../../utils/GlobalState';
-import { useDispatch, useSelector } from 'react-redux';
-import { UPDATE_PRODUCTS } from '../../utils/actions';
-
+import React, { useEffect } from 'react';
 import ProductItem from '../ProductItem';
+import { useStoreContext } from '../../utils/GlobalState';
+import { UPDATE_PRODUCTS } from '../../utils/actions';
+import { useQuery } from '@apollo/client';
 import { QUERY_PRODUCTS } from '../../utils/queries';
+import { idbPromise } from '../../utils/helpers';
 import spinner from '../../assets/spinner.gif';
 
-//import out idbPromise
-import {idbPromise} from '../../utils/helpers';
-
 function ProductList() {
-  //execute the useStoreContest() function to retrieve the global state object
-  // //and the dispatch method to update state.
-  // const [state, dispatch] = useStoreContext();
-  //use redux instead of the global state
-  const dispatch = useDispatch();
-  const state = useSelector((state) => state);
-  //deconstruct the currentCategory data out of the state object
-  const {currentCategory} = state;
-  //
-  const {loading, data } = useQuery(QUERY_PRODUCTS);
-  //implement the useEffect hook, once the data goes from undefined to a value we execute out dispatch()
+  const [state, dispatch] = useStoreContext();
+
+  const { currentCategory } = state;
+
+  const { loading, data } = useQuery(QUERY_PRODUCTS);
+
   useEffect(() => {
-    // if there's data to be stored
     if (data) {
-      // let's store it in the global state object
       dispatch({
         type: UPDATE_PRODUCTS,
-        products: data.products
+        products: data.products,
       });
-      //but let's also take each product and save it the IDB using the helper function
       data.products.forEach((product) => {
-        //using our function to add each product as a product with the put method
         idbPromise('products', 'put', product);
       });
-      // add else if to check if `loading` is undefined in `useQuery`
-      //this check if to see if we should lean on IDB for the data instead i.e. if we're offline
     } else if (!loading) {
-      //since we're offline, get all of the data from the `products` store
-      idbPromise('products','get').then((products) => {
-        //use retrieved data to set global state for offline browsing
+      idbPromise('products', 'get').then((products) => {
         dispatch({
-          type:UPDATE_PRODUCTS,
-          products: products
+          type: UPDATE_PRODUCTS,
+          products: products,
         });
       });
     }
-  }, [data,loading, dispatch]);
-  
-  //once this is done we execute it again to give us product data
-  function filterProducts(){
+  }, [data, loading, dispatch]);
+
+  function filterProducts() {
     if (!currentCategory) {
       return state.products;
     }
-    return state.products.filter(product => product.category._id === currentCategory);
+
+    return state.products.filter(
+      (product) => product.category._id === currentCategory
+    );
   }
 
   return (

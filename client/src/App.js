@@ -15,10 +15,10 @@ import Login from './pages/Login';
 import Signup from './pages/Signup';
 import Nav from './components/Nav';
 import Success from './pages/Success';
-// import { StoreProvider } from './utils/GlobalState';
+import { StoreProvider } from './utils/GlobalState';
 import OrderHistory from './pages/OrderHistory';
-import { Provider } from 'react-redux';
-import store from './utils/store';
+// import { Provider } from 'react-redux';
+// import store from './utils/store';
 
 
 
@@ -46,7 +46,7 @@ function App() {
     <ApolloProvider client={client}>
       <Router>
         <div>
-          <Provider store={store}>
+          <StoreProvider>
           <Nav />
           <Switch>
             <Route exact path="/" component={Home} />
@@ -57,7 +57,7 @@ function App() {
             <Route exact path="/products/:id" component={Detail} />
             <Route component={NoMatch} />
           </Switch>
-          </Provider>
+          </StoreProvider>
         </div>
       </Router>
     </ApolloProvider>

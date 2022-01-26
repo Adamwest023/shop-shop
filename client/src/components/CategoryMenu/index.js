@@ -1,58 +1,43 @@
 import React, { useEffect } from 'react';
 import { useQuery } from '@apollo/client';
+import { useStoreContext } from '../../utils/GlobalState';
+import {
+  UPDATE_CATEGORIES,
+  UPDATE_CURRENT_CATEGORY,
+} from '../../utils/actions';
 import { QUERY_CATEGORIES } from '../../utils/queries';
-import { UPDATE_CATEGORIES, UPDATE_CURRENT_CATEGORY } from '../../utils/actions';
-// import {useStoreContext} from "../../utils/GlobalState";
-//import react redux
-import { useDispatch, useSelector } from 'react-redux';
-//import IDB function
-import { idbPromise} from '../../utils/helpers';
+import { idbPromise } from '../../utils/helpers';
 
 function CategoryMenu() {
-  //call useStoreContext Hook to retrieve the current state from the global state object 
-  //and the dispatch method to update state 
-  //const [state, dispatch] = useStoreContext();
-  //call redux instead of ContextAPI
-  const dispatch = useDispatch();
-  const state = useSelector((state) => state);
-  //destructure the categories array from the state 
-  const {categories} = state;
-  //update the hook to destructure a loading variable
-  const {loading, data: categoryData } = useQuery(QUERY_CATEGORIES);
-  
-  // useEffect hook used to to catch data from useQuery to add to automoatically run the dispatch()
+  const [state, dispatch] = useStoreContext();
+
+  const { categories } = state;
+
+  const { loading, data: categoryData } = useQuery(QUERY_CATEGORIES);
+
   useEffect(() => {
-    //if categoryData exists or has changed for the response of useQuery, then run dispatch()
-    if(categoryData) {
-      //execute our dispatch function with out action object indicating the type 
-      //of action and the data to set our state for categories to 
+    if (categoryData) {
       dispatch({
         type: UPDATE_CATEGORIES,
-        categories: categoryData.categories
+        categories: categoryData.categories,
       });
-      //but let's also take each category and save it the IDB using the helper function
-      categoryData.categories.forEach(category => {
-        //using our function to add each category as a category with the put method
+      categoryData.categories.forEach((category) => {
         idbPromise('categories', 'put', category);
       });
-      // add else if to check if `loading` is undefined in `useQuery`
-      //this check if to see if we should lean on IDB for the data instead i.e. if we're offline
     } else if (!loading) {
-       //since we're offline, get all of the data from the `category store
-       idbPromise('categories', 'get').then((categories) => {
-         //use retrieved data to set global state for offline browsing
-         dispatch({
-           type: UPDATE_CATEGORIES,
-           categories: categories
-         });
-       });
+      idbPromise('categories', 'get').then((categories) => {
+        dispatch({
+          type: UPDATE_CATEGORIES,
+          categories: categories,
+        });
+      });
     }
   }, [categoryData, loading, dispatch]);
 
-  const handleClick = id => {
+  const handleClick = (id) => {
     dispatch({
       type: UPDATE_CURRENT_CATEGORY,
-      currentCategory: id
+      currentCategory: id,
     });
   };
 
@@ -71,6 +56,6 @@ function CategoryMenu() {
       ))}
     </div>
   );
-};
+}
 
 export default CategoryMenu;
